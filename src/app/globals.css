@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}
+
+body{
+  background: linear-gradient(to right, rgb(2, 247, 255), rgb(13, 13, 228));
+}
