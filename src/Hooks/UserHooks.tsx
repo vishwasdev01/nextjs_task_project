@@ -30,7 +30,7 @@ export function userCreateUser() {
   })
 }
 
-export function useDeleteUsers(p0: never[]) {
+export function useDeleteUsers() {
   const queryClient = useQueryClient()
   return useMutation({
     mutationFn: async (ids: string[]) => {

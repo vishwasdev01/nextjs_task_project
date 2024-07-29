@@ -26,15 +26,17 @@ import {
   faEdit,
   faTrash,
 } from '@fortawesome/free-solid-svg-icons'
+import Toast from '@/components/Toast'
 
 export default function Dashboard() {
   const { data } = useUserData()
-  const userDeleteMutation = useDeleteUsers([])
+  const userDeleteMutation = useDeleteUsers()
   const [userList, setUserList] = useState<USER[]>([])
   const [selectedRowIds, setSelectedRowIds] = useState<Set<string>>(new Set())
   const [globalFilter, setGlobalFilter] = useState('')
   const [pageIndex, setPageIndex] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
 
   const userMutation = userCreateUser()
   const userEditMutation = useEditUser()
@@ -54,20 +56,24 @@ export default function Dashboard() {
   }
 
   const handleCreateOrEditUser = () => {
-    if (editingUserId) {
-      userEditMutation.mutate({ id: editingUserId, data: newUser })
-      setEditingUserId(null)
+    if (Number(newUser.age) > 18) {
+      if (editingUserId) {
+        userEditMutation.mutate({ id: editingUserId, data: newUser })
+        setEditingUserId(null)
+      } else {
+        userMutation.mutate(newUser)
+      }
+      setNewUser({
+        first_name: '',
+        last_name: '',
+        email: '',
+        alternate_email: '',
+        password: '',
+        age: '',
+      })
     } else {
-      userMutation.mutate(newUser)
+      setToastMessage('Age must be 18 or older.')
     }
-    setNewUser({
-      first_name: '',
-      last_name: '',
-      email: '',
-      alternate_email: '',
-      password: '',
-      age: '',
-    })
   }
 
   useEffect(() => {
@@ -158,7 +164,7 @@ export default function Dashboard() {
         pageSize,
       },
     },
-    getRowId: (row: USER) => row.uid,
+    getRowId: (row: USER) => row.uid || '',
     onGlobalFilterChange: setGlobalFilter,
     onPaginationChange: (updater) => {
       const newState =
@@ -172,7 +178,6 @@ export default function Dashboard() {
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    getRowCanSelect: () => true,
     onRowSelectionChange: (rowSelection) => {
       setSelectedRowIds(new Set(Object.keys(rowSelection)))
     },
@@ -282,14 +287,12 @@ export default function Dashboard() {
                           header.column.columnDef.header,
                           header.getContext(),
                         )}
-                    {header.column.id === 'age' && (
-                      <>
-                        {{
-                          asc: ' 🔼',
-                          desc: ' 🔽',
-                        }[header.column.getIsSorted()] ?? null}
-                      </>
-                    )}
+                    {header.column.id === 'age' &&
+                      (header.column.getIsSorted()
+                        ? header.column.getIsSorted() === 'asc'
+                          ? ' 🔼'
+                          : ' 🔽'
+                        : null)}
                   </th>
                 ))}
               </tr>
@@ -328,6 +331,9 @@ export default function Dashboard() {
           </button>
         </div>
       </div>
+      {toastMessage && (
+        <Toast message={toastMessage} onClose={() => setToastMessage(null)} />
+      )}
     </div>
   )
 }

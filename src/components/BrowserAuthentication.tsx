@@ -22,7 +22,7 @@ export default function BrowserAuthentication({
         router.push('/error')
       }
     }
-  }, [])
+  }, [pathname, router])
 
   return <div>{children}</div>
 }

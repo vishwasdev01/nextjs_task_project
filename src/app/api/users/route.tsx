@@ -3,6 +3,7 @@ import { promises as fs } from 'fs'
 import path from 'path'
 import { v4 as uuidv4 } from 'uuid'
 import bcrypt from 'bcryptjs'
+
 // Define the types
 type User = {
   first_name: string
@@ -20,21 +21,7 @@ type Data = {
 
 type FileData = Data[]
 
-async function getData() {
-  const filePath = path.join(process.cwd(), './db.json')
-  const jsonData = await fs.readFile(filePath, 'utf8')
-  const data = JSON.parse(jsonData)
-  return data
-}
-// export async function GET() {
-//   const data = await getData()
-//   //console.log('>>>>>>>>>>>>>>>>>>>>>', data)
-//   return NextResponse.json({
-//     data,
-//   })
-// }
-
-export async function GET(request: NextRequest, context: any) {
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const userUid = searchParams.get('uid')
 
@@ -49,8 +36,8 @@ export async function GET(request: NextRequest, context: any) {
   try {
     const fileContent = await fs.readFile(jsonFilePath, 'utf-8')
     existingData = JSON.parse(fileContent) as FileData
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') {
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       // Re-throw error if it's not a 'file not found' error
       console.log(err)
       throw err
@@ -87,11 +74,10 @@ export async function GET(request: NextRequest, context: any) {
     })
   }
 }
-export async function POST(request: NextRequest, context: any) {
-  let data: User = await request.json()
-  const { params } = context
 
-  // Generate a unique ID for the new user
+export async function POST(request: NextRequest) {
+  const data: User = await request.json()
+
   data.uid = uuidv4()
 
   // Hash the password before storing it
@@ -109,8 +95,8 @@ export async function POST(request: NextRequest, context: any) {
   try {
     const fileContent = await fs.readFile(jsonFilePath, 'utf-8')
     existingData = JSON.parse(fileContent) as FileData
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') {
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       // Re-throw error if it's not a 'file not found' error
       throw err
     }
@@ -137,7 +123,7 @@ export async function POST(request: NextRequest, context: any) {
   })
 }
 
-export async function PUT(request: NextRequest, context: any) {
+export async function PUT(request: NextRequest) {
   const data: User = await request.json()
   const { searchParams } = new URL(request.url)
   const userUid = searchParams.get('uid')
@@ -176,8 +162,8 @@ export async function PUT(request: NextRequest, context: any) {
   try {
     const fileContent = await fs.readFile(jsonFilePath, 'utf-8')
     existingData = JSON.parse(fileContent) as FileData
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') {
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       // Re-throw error if it's not a 'file not found' error
       console.log(err)
       throw err
@@ -222,7 +208,7 @@ export async function PUT(request: NextRequest, context: any) {
   })
 }
 
-export async function DELETE(request: NextRequest, context: any) {
+export async function DELETE(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const userUid = searchParams.get('uid')
 
@@ -248,8 +234,8 @@ export async function DELETE(request: NextRequest, context: any) {
   try {
     const fileContent = await fs.readFile(jsonFilePath, 'utf-8')
     existingData = JSON.parse(fileContent) as FileData
-  } catch (err: any) {
-    if (err.code !== 'ENOENT') {
+  } catch (err: unknown) {
+    if ((err as NodeJS.ErrnoException).code !== 'ENOENT') {
       // Re-throw error if it's not a 'file not found' error
       console.log(err)
       throw err

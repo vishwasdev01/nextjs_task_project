@@ -17,7 +17,7 @@ const HomePage = () => {
           Welcome to Our Website!
         </motion.h1>
         <motion.p className="text-white text-2xl">
-          We're glad to have you here. Explore and enjoy!
+          We are glad to have you here. Explore and enjoy!
         </motion.p>
         <Link href="dashboard">
           <motion.p
